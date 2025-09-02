@@ -594,7 +594,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60.000004
+  field of view: 100
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -621,7 +621,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.61, z: 0}
+  m_LocalPosition: {x: 0, y: 0.62, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1605,10 +1605,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdda11ac271ab144e9757a8798668ba2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
-  rb: {fileID: 1177679743}
-  movement: {x: 0, y: 0, z: 0}
-  cameraTransform: {fileID: 330585546}
 --- !u!136 &1177679745
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1727,9 +1723,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e054dbe8fd596a41a911185e8ededc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 7
+  moveSpeed: 15
+  acceleration: 8
+  deceleration: 5
   mouseSensitivity: 2
   cameraTransform: {fileID: 330585546}
+  shakeAmount: 0.1
+  shakeSpeed: 10
 --- !u!1 &1332898147
 GameObject:
   m_ObjectHideFlags: 0
@@ -2340,7 +2340,7 @@ GameObject:
   - component: {fileID: 2098952973}
   - component: {fileID: 2098952972}
   m_Layer: 0
-  m_Name: timer
+  m_Name: Timer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2361,7 +2361,7 @@ MonoBehaviour:
   useRandomTime: 0
   minTime: 30
   maxTime: 60
-  fixedTime: 60
+  fixedTime: 15
   timerText: {fileID: 135866639}
 --- !u!4 &2098952973
 Transform:
@@ -2470,11 +2470,11 @@ MonoBehaviour:
     spawnChance: 5
   - prefab: {fileID: 4045562900591284205, guid: b0551b0621537874e830ba3fdc55587d, type: 3}
     spawnChance: 5
-  areaSize: {x: 17.8, y: 0, z: 38}
+  areaSize: {x: 62.4, y: 0, z: 79.3}
   areaCenter: {x: 0, y: 0, z: 0}
   minSpawnTime: 0
   maxSpawnTime: 0
-  maxSpawns: 13
+  maxSpawns: 20
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using UnityEngine.InputSystem;
+using Unity.VisualScripting;
 
 public class TrashCleaner : MonoBehaviour
 {
@@ -22,7 +24,7 @@ public class TrashCleaner : MonoBehaviour
     {
         if (currentTrash != null && cleanUpSlider != null)
         {
-            if (Input.GetKey(cleanUpKey))
+            if (Input.GetMouseButtonDown(0))
             {
                 if (cleaningCoroutine == null)
                     cleaningCoroutine = StartCoroutine(CleanUpCoroutine());
@@ -46,7 +48,7 @@ public class TrashCleaner : MonoBehaviour
         cleanUpSlider.maxValue = currentTrash.cleanUpTime;
         cleanUpSlider.value = 0f;
 
-        while (cleanUpSlider.value < cleanUpSlider.maxValue && Input.GetKey(cleanUpKey))
+        while (cleanUpSlider.value < cleanUpSlider.maxValue && Input.GetMouseButtonDown(0))
         {
             if (BackpackManager.Instance.IsBackpackFull())
             {
