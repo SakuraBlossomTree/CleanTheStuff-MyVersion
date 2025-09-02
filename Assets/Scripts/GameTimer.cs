@@ -1,33 +1,32 @@
 using UnityEngine;
 using UnityEngine.UI;   // Only if you want to show the timer on screen
+using System;
 
 public class GameTimer : MonoBehaviour
 {
     [Header("Timer Settings")]
     public bool useRandomTime = true;   // Toggle random vs fixed
-    public float minTime = 30f;         // Min random time
-    public float maxTime = 60f;         // Max random time
-    public float fixedTime = 45f;       // Fixed time if random disabled
+    public float levelTime = 45f;       // Fixed time if random disabled
+
+    public bool isRunning = false;
 
     private float timer;
 
     [Header("UI (Optional)")]
     public Text timerText; // Assign in inspector if you want to show countdown
 
+    public Action OnTimerEnd;
+
     void Start()
     {
-        if (useRandomTime)
-        {
-            timer = Random.Range(minTime, maxTime);
-        }
-        else
-        {
-            timer = fixedTime;
-        }
+        ResetTimer();
     }
 
     void Update()
     {
+        
+        if (!isRunning) return;
+
         timer -= Time.deltaTime;
 
         if (timerText != null)
@@ -35,11 +34,27 @@ public class GameTimer : MonoBehaviour
 
         if (timer <= 0f)
         {
-#if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false; // Stop play mode in Editor
-#else
-            Application.Quit(); // Quit build
-#endif
+            isRunning = false;
+            timer = 0f;
+
+            OnTimerEnd?.Invoke();
         }
     }
+
+    public void StartTimer()
+    {
+        isRunning = true;
+    }
+
+    public void StopTimer()
+    {
+        isRunning = false;
+    }
+
+    public void ResetTimer()
+    {
+        timer = levelTime; 
+        isRunning = false;
+    }
+
 }

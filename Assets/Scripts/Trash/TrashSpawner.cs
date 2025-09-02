@@ -27,6 +27,8 @@ public class TrashSpawner : MonoBehaviour
     public float minSpawnTime = 2f;
     public float maxSpawnTime = 5f;
 
+    public int ActiveTrash { get; private set; } = 0;
+
     void Start()
     {
         // Start the continuous spawning process
@@ -58,18 +60,24 @@ public class TrashSpawner : MonoBehaviour
             {
                 GameObject spawnedTrash = Instantiate(trashPrefab, sp.point.position, sp.point.rotation);
                 sp.isOccupied = true;
+                ActiveTrash++;
 
                 // Setup cleanup callback to free spawn point when trash is destroyed
                 Trash trashComp = spawnedTrash.GetComponent<Trash>();
                 if (trashComp != null)
                 {
-                    trashComp.onTrashDestroyed += () => sp.isOccupied = false;
+                    trashComp.onTrashDestroyed += () =>
+                    {
+                        sp.isOccupied = false;
+                        ActiveTrash--;
+                    };
                 }
                 else
                 {
                     // Fallback: auto-destroy after 10 seconds if no Trash component
                     Destroy(spawnedTrash, 10f); 
                     sp.isOccupied = false;
+                    ActiveTrash--;
                 }
             }
         }
