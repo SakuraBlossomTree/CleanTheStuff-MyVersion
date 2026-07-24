@@ -1,16 +1,17 @@
 using UnityEngine;
 
-
 [RequireComponent(typeof(Rigidbody))]
 public class Movement : MonoBehaviour
 {
-    public float moveSpeed = 5f;
-    public float acceleration = 10f;
-    public float deceleration = 8f;
+    [Header("Movement Settings")]
+    public float moveSpeed = 12f;       // Fast base speed
+    public float acceleration = 25f;    // How fast you reach top speed (Higher = snappier)
+    public float deceleration = 20f;    // How fast you stop (Lower = more slide/momentum)
+
+    [Header("Camera Settings")]
     public float mouseSensitivity = 2f;
     public Transform cameraTransform;
-
-    public float shakeAmount = 0.05f; 
+    public float shakeAmount = 0.05f;
     public float shakeSpeed = 10f;
 
     private Rigidbody rb;
@@ -23,9 +24,7 @@ public class Movement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotation;
-
         originalCamPos = cameraTransform.localPosition;
-
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -62,25 +61,23 @@ public class Movement : MonoBehaviour
         Vector3 right = transform.right;
 
         moveDirection = (forward * moveZ + right * moveX).normalized;
-
         Vector3 targetVelocity = moveDirection * moveSpeed;
 
+        // Smoothly transition between current velocity and target velocity for momentum
         float lerpRate = (moveDirection.magnitude > 0.1f) ? acceleration : deceleration;
-
         currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, lerpRate * Time.deltaTime);
     }
+
     void HandleCameraShake()
     {
-        if (moveDirection.magnitude > 0.1f) // only shake while moving
+        if (moveDirection.magnitude > 0.1f)
         {
             float shakeX = Mathf.Sin(Time.time * shakeSpeed) * shakeAmount;
             float shakeY = Mathf.Cos(Time.time * shakeSpeed * 2f) * shakeAmount * 0.5f;
-
             cameraTransform.localPosition = originalCamPos + new Vector3(shakeX, shakeY, 0);
         }
         else
         {
-            // smoothly return to original position
             cameraTransform.localPosition = Vector3.Lerp(
                 cameraTransform.localPosition,
                 originalCamPos,

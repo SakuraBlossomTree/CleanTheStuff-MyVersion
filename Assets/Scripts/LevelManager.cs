@@ -4,7 +4,7 @@ public class LevelManager : MonoBehaviour
 {
     [Header("Core Components")]
     public GameTimer gameTimer;
-    public TrashSpawner trashSpawner;
+    public TrashSpawnerRandom trashSpawner;
 
     [Header("Spawn Points")]
     public Transform[] playerSpawnPoints;
@@ -12,7 +12,6 @@ public class LevelManager : MonoBehaviour
 
     private int currentLevel = 0;
     private GameObject player;
-
     private bool levelActive = false;
 
     void Start()
@@ -42,13 +41,11 @@ public class LevelManager : MonoBehaviour
 
     void Update()
     {
+        if (!levelActive || !gameTimer.isRunning) return;
 
-        if (!levelActive) return;
-
-        if (!gameTimer.isRunning) return;
-
-        if (trashSpawner.ActiveTrash == 0)
+        if (TrashCleaner.trashCollected >= trashSpawner.maxSpawns)
         {
+            Debug.Log("Level Complete! Collected " + TrashCleaner.trashCollected + "/" + trashSpawner.maxSpawns);
             levelActive = false;
             AdvanceLevel();
         }
@@ -56,8 +53,7 @@ public class LevelManager : MonoBehaviour
 
     void HandleTimeUp()
     {
-        Debug.Log("⛔ Timer ended but trash still remains! Level failed.");
-
+        Debug.Log("Timer ended but trash still remains. Level failed.");
         StartLevel(currentLevel);
     }
 
@@ -65,29 +61,34 @@ public class LevelManager : MonoBehaviour
     {
         if (levelIndex >= playerSpawnPoints.Length || levelIndex >= trashSpawnPoints.Length)
         {
-            Debug.Log("🎉 All levels completed!");
+            Debug.Log("All levels completed!");
             return;
         }
 
-        Debug.Log("✅ Starting level " + levelIndex);
+        Debug.Log("Starting level " + levelIndex);
 
+        TrashCleaner.ResetProgress();
+
+        // Move player to this level's spawn point
         player.transform.position = playerSpawnPoints[levelIndex].position;
 
-        foreach (GameObject oldTrash in GameObject.FindGameObjectsWithTag("Trash"))
-        {
-            Destroy(oldTrash);
-        }
-
+        // Move trash spawner to this level's location
         if (trashSpawner != null)
         {
             trashSpawner.transform.position = trashSpawnPoints[levelIndex].position;
+            trashSpawner.ResetSpawner();
+        }
+
+        // Destroy leftover trash
+        foreach (GameObject oldTrash in GameObject.FindGameObjectsWithTag("Trash"))
+        {
+            Destroy(oldTrash);
         }
 
         gameTimer.ResetTimer();
         gameTimer.StartTimer();
 
         levelActive = true;
-
     }
 
     void AdvanceLevel()

@@ -6,15 +6,15 @@ public class TrashSpawner : MonoBehaviour
     [System.Serializable]
     public class TrashType
     {
-        public GameObject prefab;  
-        public float spawnChance;   
+        public GameObject prefab;
+        public float spawnChance;
     }
 
     [System.Serializable]
     public class SpawnPoint
     {
-        public Transform point;     
-        [HideInInspector] public bool isOccupied = false; 
+        public Transform point;
+        [HideInInspector] public bool isOccupied = false;
     }
 
     [Header("Trash Settings")]
@@ -27,11 +27,16 @@ public class TrashSpawner : MonoBehaviour
     public float minSpawnTime = 2f;
     public float maxSpawnTime = 5f;
 
+    [Header("Level Quota")]
+    public int maxTrashSpawns = 15; // Set this in the Inspector for each level!
+
+    // Tracking variables for the Win Condition
     public int ActiveTrash { get; private set; } = 0;
+    public int TotalTrashSpawned { get; private set; } = 0;
+    public int TotalTrashCollected { get; private set; } = 0;
 
     void Start()
     {
-        // Start the continuous spawning process
         StartCoroutine(SpawnLoop());
     }
 
@@ -39,7 +44,13 @@ public class TrashSpawner : MonoBehaviour
     {
         while (true)
         {
-            // Wait random time between spawns
+            // Stop spawning if we hit the max quota for the level
+            if (TotalTrashSpawned >= maxTrashSpawns)
+            {
+                yield return null;
+                continue;
+            }
+
             yield return new WaitForSeconds(Random.Range(minSpawnTime, maxSpawnTime));
             TrySpawnTrash();
         }
@@ -49,11 +60,10 @@ public class TrashSpawner : MonoBehaviour
     {
         if (spawnPoints.Length == 0 || trashTypes.Length == 0) return;
 
-        // Pick random spawn point
         int index = Random.Range(0, spawnPoints.Length);
         SpawnPoint sp = spawnPoints[index];
 
-        if (!sp.isOccupied) 
+        if (!sp.isOccupied)
         {
             GameObject trashPrefab = GetRandomTrashPrefab();
             if (trashPrefab != null)
@@ -61,8 +71,8 @@ public class TrashSpawner : MonoBehaviour
                 GameObject spawnedTrash = Instantiate(trashPrefab, sp.point.position, sp.point.rotation);
                 sp.isOccupied = true;
                 ActiveTrash++;
+                TotalTrashSpawned++; // Track total spawned
 
-                // Setup cleanup callback to free spawn point when trash is destroyed
                 Trash trashComp = spawnedTrash.GetComponent<Trash>();
                 if (trashComp != null)
                 {
@@ -70,14 +80,15 @@ public class TrashSpawner : MonoBehaviour
                     {
                         sp.isOccupied = false;
                         ActiveTrash--;
+                        TotalTrashCollected++; // Track total collected for win condition
                     };
                 }
                 else
                 {
-                    // Fallback: auto-destroy after 10 seconds if no Trash component
-                    Destroy(spawnedTrash, 10f); 
+                    Destroy(spawnedTrash, 10f);
                     sp.isOccupied = false;
                     ActiveTrash--;
+                    TotalTrashCollected++;
                 }
             }
         }
@@ -85,25 +96,29 @@ public class TrashSpawner : MonoBehaviour
 
     GameObject GetRandomTrashPrefab()
     {
-        // Calculate total spawn chance for weighted random selection
         float total = 0f;
-        foreach (TrashType type in trashTypes)
-        {
-            total += type.spawnChance;
-        }
+        foreach (TrashType type in trashTypes) total += type.spawnChance;
 
         float randomValue = Random.Range(0, total);
         float cumulative = 0f;
 
-        // Find which trash type the random value selects
         foreach (TrashType type in trashTypes)
         {
             cumulative += type.spawnChance;
-            if (randomValue <= cumulative)
-            {
-                return type.prefab;
-            }
+            if (randomValue <= cumulative) return type.prefab;
         }
         return null;
+    }
+
+    // Called by LevelManager when restarting a level to ensure a clean slate
+    public void ResetSpawner()
+    {
+        ActiveTrash = 0;
+        TotalTrashSpawned = 0;
+        TotalTrashCollected = 0;
+        foreach (var sp in spawnPoints)
+        {
+            sp.isOccupied = false;
+        }
     }
 }

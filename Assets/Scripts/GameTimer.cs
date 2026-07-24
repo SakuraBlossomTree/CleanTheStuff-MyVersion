@@ -1,30 +1,29 @@
-using UnityEngine;
-using UnityEngine.UI;   // Only if you want to show the timer on screen
+﻿using UnityEngine;
+using UnityEngine.UI;
 using System;
 
 public class GameTimer : MonoBehaviour
 {
     [Header("Timer Settings")]
-    public bool useRandomTime = true;   // Toggle random vs fixed
-    public float levelTime = 45f;       // Fixed time if random disabled
-
+    public bool useRandomTime = true;
+    public float levelTime = 45f;
     public bool isRunning = false;
 
     private float timer;
 
     [Header("UI (Optional)")]
-    public Text timerText; // Assign in inspector if you want to show countdown
-
+    public Text timerText;
     public Action OnTimerEnd;
 
-    void Start()
+    // CHANGED: Start() → Awake()
+    // Awake() ALWAYS runs before any Start() method
+    void Awake()
     {
         ResetTimer();
     }
 
     void Update()
     {
-        
         if (!isRunning) return;
 
         timer -= Time.deltaTime;
@@ -36,7 +35,6 @@ public class GameTimer : MonoBehaviour
         {
             isRunning = false;
             timer = 0f;
-
             OnTimerEnd?.Invoke();
         }
     }
@@ -53,8 +51,7 @@ public class GameTimer : MonoBehaviour
 
     public void ResetTimer()
     {
-        timer = levelTime; 
+        timer = levelTime;
         isRunning = false;
     }
-
 }

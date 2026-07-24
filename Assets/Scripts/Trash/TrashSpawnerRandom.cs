@@ -14,17 +14,18 @@ public class TrashSpawnerRandom : MonoBehaviour
     public TrashType[] trashTypes;
 
     [Header("Spawn Area")]
-    public Vector3 areaSize = new Vector3(10, 0, 10); 
-    public Vector3 areaCenter = Vector3.zero;         
+    public Vector3 areaSize = new Vector3(10, 0, 10);
+    public Vector3 areaCenter = Vector3.zero;
 
     [Header("Timing")]
-    public float minSpawnTime = 2f;
-    public float maxSpawnTime = 5f;
+    public float minSpawnTime;
+    public float maxSpawnTime;
 
     [Header("Limit")]
-    public int maxSpawns = 10; // fixed number of spawns
+    public int maxSpawns;
 
-    private int currentSpawnCount = 0;
+    // CHANGED: Made this publicly readable so LevelManager can check it
+    public int CurrentSpawnCount { get; private set; } = 2;
 
     void Start()
     {
@@ -33,7 +34,7 @@ public class TrashSpawnerRandom : MonoBehaviour
 
     IEnumerator SpawnLoop()
     {
-        while (currentSpawnCount < maxSpawns) // stop after reaching limit
+        while (CurrentSpawnCount < maxSpawns)
         {
             yield return new WaitForSeconds(Random.Range(minSpawnTime, maxSpawnTime));
             TrySpawnTrash();
@@ -42,14 +43,14 @@ public class TrashSpawnerRandom : MonoBehaviour
 
     void TrySpawnTrash()
     {
-        if (currentSpawnCount >= maxSpawns) return;
+        if (CurrentSpawnCount >= maxSpawns) return;
 
         GameObject trashPrefab = GetRandomTrashPrefab();
         if (trashPrefab != null)
         {
             Vector3 randomPos = GetRandomPosition();
             Instantiate(trashPrefab, randomPos, Quaternion.identity);
-            currentSpawnCount++; // count each spawn
+            CurrentSpawnCount++;
         }
     }
 
@@ -81,11 +82,18 @@ public class TrashSpawnerRandom : MonoBehaviour
         return null;
     }
 
+    // Reset for level restarts
+    public void ResetSpawner()
+    {
+        CurrentSpawnCount = 0;
+        StopAllCoroutines();
+        StartCoroutine(SpawnLoop());
+    }
+
     void OnDrawGizmosSelected()
     {
         Gizmos.color = new Color(0f, 1f, 0f, 0.3f);
         Gizmos.DrawCube(transform.position + areaCenter, areaSize);
-
         Gizmos.color = Color.green;
         Gizmos.DrawWireCube(transform.position + areaCenter, areaSize);
     }

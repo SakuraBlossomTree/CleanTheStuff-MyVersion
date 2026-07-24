@@ -1,18 +1,17 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-using UnityEngine.InputSystem;
-using Unity.VisualScripting;
+using System.Collections.Generic;
 
 public class TrashCleaner : MonoBehaviour
 {
-    public Slider cleanUpSlider; 
-    public KeyCode cleanUpKey = KeyCode.E;
+    public Slider cleanUpSlider;
     private Trash currentTrash;
     private Coroutine cleaningCoroutine;
 
-    public static System.Collections.Generic.Dictionary<string, int> trashCounts = new System.Collections.Generic.Dictionary<string, int>();
-    public static int totalPoints; 
+    public static Dictionary<string, int> trashCounts = new Dictionary<string, int>();
+    public static int totalPoints;
+    public static int trashCollected = 0;
 
     void Start()
     {
@@ -22,22 +21,7 @@ public class TrashCleaner : MonoBehaviour
 
     void Update()
     {
-        if (currentTrash != null && cleanUpSlider != null)
-        {
-            if (Input.GetMouseButtonDown(0))
-            {
-                if (cleaningCoroutine == null)
-                    cleaningCoroutine = StartCoroutine(CleanUpCoroutine());
-            }
-            else
-            {
-                if (cleaningCoroutine != null)
-                {
-                    StopCoroutine(cleaningCoroutine);
-                    cleaningCoroutine = null;
-                }
-            }
-        }
+        // Auto-pickup: no mouse input needed
     }
 
     IEnumerator CleanUpCoroutine()
@@ -48,7 +32,7 @@ public class TrashCleaner : MonoBehaviour
         cleanUpSlider.maxValue = currentTrash.cleanUpTime;
         cleanUpSlider.value = 0f;
 
-        while (cleanUpSlider.value < cleanUpSlider.maxValue && Input.GetMouseButtonDown(0))
+        while (cleanUpSlider.value < cleanUpSlider.maxValue)
         {
             if (BackpackManager.Instance.IsBackpackFull())
             {
@@ -65,19 +49,18 @@ public class TrashCleaner : MonoBehaviour
         {
             string trashType = currentTrash.name.Replace("(Clone)", "");
 
-            // if (BackpackManager.Instance.IsBackpackFull())
-            // {
-            //     BackpackManager.Instance.ShowNotification("Backpack Full!");
-            //     cleanUpSlider.gameObject.SetActive(false);
-            //     yield break;
-            // }
-
             if (trashCounts.ContainsKey(trashType))
                 trashCounts[trashType]++;
             else
                 trashCounts[trashType] = 1;
 
             totalPoints += currentTrash.points;
+            trashCollected++;
+
+            // ==========================================
+            // DEBUG LOG: Shows the counter going up
+            // ==========================================
+            Debug.Log($"🗑️ Trash Collected! trashCollected = {trashCollected}");
 
             BackpackManager.Instance.ShowNotification($"Collected {trashType} +{currentTrash.points} points");
 
@@ -94,6 +77,11 @@ public class TrashCleaner : MonoBehaviour
         if (other.CompareTag("Trash"))
         {
             currentTrash = other.GetComponent<Trash>();
+
+            if (cleaningCoroutine == null)
+            {
+                cleaningCoroutine = StartCoroutine(CleanUpCoroutine());
+            }
         }
     }
 
@@ -110,5 +98,13 @@ public class TrashCleaner : MonoBehaviour
                 cleaningCoroutine = null;
             }
         }
+    }
+
+    public static void ResetProgress()
+    {
+        trashCounts.Clear();
+        totalPoints = 0;
+        trashCollected = 0;
+        Debug.Log("Progress Reset! trashCollected = 0");
     }
 }
