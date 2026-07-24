@@ -4,9 +4,14 @@ using UnityEngine;
 public class Movement : MonoBehaviour
 {
     [Header("Movement Settings")]
-    public float moveSpeed = 12f;       // Fast base speed
-    public float acceleration = 25f;    // How fast you reach top speed (Higher = snappier)
-    public float deceleration = 20f;    // How fast you stop (Lower = more slide/momentum)
+    public float moveSpeed = 12f;
+    public float acceleration = 25f;
+    public float deceleration = 20f;
+
+    [Header("Jump Settings")]
+    public float jumpForce = 7f;
+    public LayerMask groundLayer;
+    public float groundCheckDistance = 1.1f;
 
     [Header("Camera Settings")]
     public float mouseSensitivity = 2f;
@@ -19,6 +24,7 @@ public class Movement : MonoBehaviour
     private Vector3 currentVelocity;
     private float rotationX = 0f;
     private Vector3 originalCamPos;
+    private bool isGrounded;
 
     void Start()
     {
@@ -33,11 +39,13 @@ public class Movement : MonoBehaviour
     {
         LookAround();
         Move();
+        HandleJump();
         HandleCameraShake();
     }
 
     void FixedUpdate()
     {
+        CheckGround();
         rb.MovePosition(rb.position + currentVelocity * Time.fixedDeltaTime);
     }
 
@@ -63,9 +71,22 @@ public class Movement : MonoBehaviour
         moveDirection = (forward * moveZ + right * moveX).normalized;
         Vector3 targetVelocity = moveDirection * moveSpeed;
 
-        // Smoothly transition between current velocity and target velocity for momentum
         float lerpRate = (moveDirection.magnitude > 0.1f) ? acceleration : deceleration;
         currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, lerpRate * Time.deltaTime);
+    }
+
+    void HandleJump()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        {
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, jumpForce, rb.linearVelocity.z);
+        }
+    }
+
+    void CheckGround()
+    {
+        // Cast a ray downward from the player's position
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, groundCheckDistance, groundLayer);
     }
 
     void HandleCameraShake()
@@ -84,5 +105,12 @@ public class Movement : MonoBehaviour
                 Time.deltaTime * shakeSpeed
             );
         }
+    }
+
+    // Visual debug line in the Scene view so you can see the ground check ray
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = isGrounded ? Color.green : Color.red;
+        Gizmos.DrawLine(transform.position, transform.position + Vector3.down * groundCheckDistance);
     }
 }

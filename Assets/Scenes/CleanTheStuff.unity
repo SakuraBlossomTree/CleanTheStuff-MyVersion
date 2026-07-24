@@ -759,7 +759,7 @@ GameObject:
   - component: {fileID: 342104519}
   - component: {fileID: 342104518}
   - component: {fileID: 342104517}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1667,9 +1667,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e054dbe8fd596a41a911185e8ededc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 60
-  acceleration: 50
-  deceleration: 30
+  moveSpeed: 40
+  acceleration: 30
+  deceleration: 20
+  jumpForce: 7
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  groundCheckDistance: 1.1
   mouseSensitivity: 2
   cameraTransform: {fileID: 330585546}
   shakeAmount: 0
@@ -1794,6 +1799,11 @@ MonoBehaviour:
   moveSpeed: 15
   acceleration: 25
   deceleration: 20
+  jumpForce: 7
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  groundCheckDistance: 1.1
   mouseSensitivity: 2
   cameraTransform: {fileID: 330585546}
   shakeAmount: 0.1
@@ -2086,7 +2096,7 @@ GameObject:
   - component: {fileID: 1634397220}
   - component: {fileID: 1634397219}
   - component: {fileID: 1634397218}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Plane (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
