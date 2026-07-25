@@ -1,22 +1,25 @@
 using UnityEngine;
 using System;
 
+public enum TrashType
+{
+    Red,
+    Blue,
+    Yellow,
+    Green
+}
+
 public class Trash : MonoBehaviour
 {
-
-        
-    // The clean time for the Trash
+    public TrashType trashType = TrashType.Green;
     public float cleanUpTime = 2f;
     public int points = 1;
-    public Action onTrashDestroyed; // Event for when trash is destroyed
 
-    // Destroy method for destroying the instance, it also Invokes it back to make the Trash object spawn again
+    public Action onTrashDestroyed;
+
     void OnDestroy()
     {
-        // Notify listeners when trash is destroyed
         if (onTrashDestroyed != null)
-        {
             onTrashDestroyed.Invoke();
-        }
     }
 }

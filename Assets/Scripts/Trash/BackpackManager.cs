@@ -46,4 +46,21 @@ public class BackpackManager : MonoBehaviour
 
         notificationText.gameObject.SetActive(false);
     }
+
+    public bool HasTrash(TrashType type)
+    {
+        string key = type.ToString();
+        return TrashCleaner.trashCounts.ContainsKey(key) && TrashCleaner.trashCounts[key] > 0;
+    }
+
+    public void RemoveTrash(TrashType type)
+    {
+        string key = type.ToString();
+        if (TrashCleaner.trashCounts.ContainsKey(key))
+        {
+            TrashCleaner.trashCounts[key]--;
+            if (TrashCleaner.trashCounts[key] <= 0)
+                TrashCleaner.trashCounts.Remove(key);
+        }
+    }
 }

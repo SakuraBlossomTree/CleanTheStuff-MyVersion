@@ -8,10 +8,14 @@ public class Movement : MonoBehaviour
     public float acceleration = 25f;
     public float deceleration = 20f;
 
+    [Header("Momentum")]
+    public float groundControl = 15f;   // Snappier ground movement (higher = snappier)
+    public float airControl = 3f;       // Air steering strength (lower = more momentum conserved)
+    public float groundCheckDistance = 1.1f;
+    public LayerMask groundLayer;       // Optional: leave empty to detect any floor
+
     [Header("Jump Settings")]
     public float jumpForce = 7f;
-    public LayerMask groundLayer;
-    public float groundCheckDistance = 1.1f;
 
     [Header("Camera Settings")]
     public float mouseSensitivity = 2f;
@@ -25,6 +29,8 @@ public class Movement : MonoBehaviour
     private float rotationX = 0f;
     private Vector3 originalCamPos;
     private bool isGrounded;
+
+    [HideInInspector] public bool grappleActive = false;
 
     void Start()
     {
@@ -46,7 +52,21 @@ public class Movement : MonoBehaviour
     void FixedUpdate()
     {
         CheckGround();
-        rb.MovePosition(rb.position + currentVelocity * Time.fixedDeltaTime);
+
+        // During a grapple, the Grapple script controls velocity.
+        if (grappleActive) return;
+
+        // Where input wants to take you (computed in Move()).
+        Vector3 inputVelocity = new Vector3(currentVelocity.x, 0, currentVelocity.z);
+        // Your actual horizontal momentum (grapple swings, rocket jumps, etc.).
+        Vector3 currentHorizontal = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+
+        // Grounded = snap to input (snappy). Airborne = conserve momentum, steer gently.
+        float blend = isGrounded ? groundControl : airControl;
+        Vector3 newHorizontal = Vector3.Lerp(currentHorizontal, inputVelocity, blend * Time.fixedDeltaTime);
+
+        // Preserve vertical velocity so gravity and rocket jumps keep working.
+        rb.linearVelocity = new Vector3(newHorizontal.x, rb.linearVelocity.y, newHorizontal.z);
     }
 
     void LookAround()
@@ -85,8 +105,9 @@ public class Movement : MonoBehaviour
 
     void CheckGround()
     {
-        // Cast a ray downward from the player's position
-        isGrounded = Physics.Raycast(transform.position, Vector3.down, groundCheckDistance, groundLayer);
+        int mask = groundLayer.value != 0 ? groundLayer.value : ~0;
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, groundCheckDistance, mask, QueryTriggerInteraction.Ignore)
+                     && !hit.collider.transform.IsChildOf(transform);
     }
 
     void HandleCameraShake()

@@ -19,11 +19,6 @@ public class TrashCleaner : MonoBehaviour
             cleanUpSlider.gameObject.SetActive(false);
     }
 
-    void Update()
-    {
-        // Auto-pickup: no mouse input needed
-    }
-
     IEnumerator CleanUpCoroutine()
     {
         if (currentTrash == null) yield break;
@@ -47,7 +42,8 @@ public class TrashCleaner : MonoBehaviour
 
         if (cleanUpSlider.value >= cleanUpSlider.maxValue)
         {
-            string trashType = currentTrash.name.Replace("(Clone)", "");
+            // Track by trash TYPE instead of GameObject name
+            string trashType = currentTrash.trashType.ToString();
 
             if (trashCounts.ContainsKey(trashType))
                 trashCounts[trashType]++;
@@ -57,12 +53,7 @@ public class TrashCleaner : MonoBehaviour
             totalPoints += currentTrash.points;
             trashCollected++;
 
-            // ==========================================
-            // DEBUG LOG: Shows the counter going up
-            // ==========================================
-            Debug.Log($"🗑️ Trash Collected! trashCollected = {trashCollected}");
-
-            BackpackManager.Instance.ShowNotification($"Collected {trashType} +{currentTrash.points} points");
+            BackpackManager.Instance.ShowNotification("Collected " + trashType + " +" + currentTrash.points + " points");
 
             Destroy(currentTrash.gameObject);
             currentTrash = null;
@@ -78,10 +69,9 @@ public class TrashCleaner : MonoBehaviour
         {
             currentTrash = other.GetComponent<Trash>();
 
+            // Auto-pickup: start cleaning as soon as you walk over it
             if (cleaningCoroutine == null)
-            {
                 cleaningCoroutine = StartCoroutine(CleanUpCoroutine());
-            }
         }
     }
 
@@ -105,6 +95,5 @@ public class TrashCleaner : MonoBehaviour
         trashCounts.Clear();
         totalPoints = 0;
         trashCollected = 0;
-        Debug.Log("Progress Reset! trashCollected = 0");
     }
 }
