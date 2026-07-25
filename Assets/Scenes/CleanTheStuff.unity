@@ -283,7 +283,7 @@ Transform:
   m_GameObject: {fileID: 78531549}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -42.8}
+  m_LocalPosition: {x: 12.43, y: 1.25, z: 3.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2315,9 +2315,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxDistance: 1000000
-  pullSpeed: 22
-  steerStrength: 6
-  releaseDistance: 1.5
+  pullSpeed: 42
+  steerStrength: 30
+  releaseDistance: 3
   grappleableLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -2367,7 +2367,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: ee29b69caeb43a44f9392d3e3dd76aa8, type: 3}
+  m_Resource: {fileID: 8300000, guid: ac03cc6c016432040bd5ef6422789f22, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -3343,7 +3343,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1921299825
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3356,14 +3356,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af6b37d4eba687a41bf0beb4cf370fd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameTimer: {fileID: 2098952972}
-  trashSpawner: {fileID: 2108217551}
-  playerSpawnPoints:
-  - {fileID: 78531550}
-  - {fileID: 6336215}
-  trashSpawnPoints:
-  - {fileID: 1855683773}
-  - {fileID: 1438632206}
 --- !u!4 &1921299826
 Transform:
   m_ObjectHideFlags: 0
